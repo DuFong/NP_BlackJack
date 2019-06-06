@@ -3,8 +3,8 @@ import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.rmi.Naming;
 import java.rmi.RemoteException;
-import java.rmi.registry.*;
 import java.rmi.server.ServerNotActiveException;
 import java.rmi.server.UnicastRemoteObject;
 import java.security.KeyStore;
@@ -14,6 +14,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
+import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
@@ -24,10 +25,10 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
 	private String password = "asd123";
 	protected int portNumSSL = 8888;
 	
-	SSLSocketFactory sslSocketFactory = null;
+	SSLSocketFactory sslSocketFactory;
 
 	protected ServerImpl() throws RemoteException {
-		super();
+		sslSocketFactory = null;
 	}
 	
 	public String checkLicense(String client_license) throws RemoteException {
@@ -50,12 +51,38 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
 		}
 		return null;
 	}
+	
+	//tmp add
+	private static void printSocketInfo(SSLSocket s) {
+		System.out.println("Socket class: "+s.getClass());
+		System.out.println("   Remote address = "
+				+s.getInetAddress().toString());
+		System.out.println("   Remote port = "+s.getPort());
+		System.out.println("   Local socket address = "
+				+s.getLocalSocketAddress().toString());
+		System.out.println("   Local address = "
+				+s.getLocalAddress().toString());
+		System.out.println("   Local port = "+s.getLocalPort());
+		System.out.println("   Need client authentication = "
+				+s.getNeedClientAuth());
+		SSLSession ss = s.getSession();
+		System.out.println("   Cipher suite = "+ss.getCipherSuite());
+		System.out.println("   Protocol = "+ss.getProtocol());
+	}
+	
+	private static void printServerSocketInfo(SSLServerSocket s) {
+		System.out.println("Server socket class: "+s.getClass());
+		System.out.println("   Server address = "+s.getInetAddress().toString());
+		System.out.println("   Server port = "+s.getLocalPort());
+		System.out.println("   Need client authentication = "+s.getNeedClientAuth());
+		System.out.println("   Want client authentication = "+s.getWantClientAuth());
+		System.out.println("   Use client mode = "+s.getUseClientMode());
+	}
 
 	public static void main(String[] args) throws IOException, ServerNotActiveException {
 		// TODO Auto-generated method stub
 		ServerImpl callbackServer = new ServerImpl();
-	    Registry registry = LocateRegistry.getRegistry ();
-	    registry.rebind (REGISTRY_NAME, callbackServer);
+		Naming.rebind(REGISTRY_NAME,callbackServer);
 	    
 	    final KeyStore ks;
 		final KeyManagerFactory kmf;
@@ -69,13 +96,7 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
 		SSLSocket c = null;
 		
 		BufferedWriter w = null;
-		BufferedReader r = null;
-		
-		if (args.length != 1) {
-			System.out.println("Usage: Classname Port");
-			System.exit(1);
-		}
-		
+		BufferedReader r = null;		
 		
 		String ksName = runRoot+".keystore/SSLSocketServerKey";
 		
@@ -105,8 +126,10 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
 			/* SSLServerSocket */
 			ssf = sc.getServerSocketFactory();
 			s = (SSLServerSocket) ssf.createServerSocket(callbackServer.portNumSSL);
+			printServerSocketInfo(s);
 			
 			c = (SSLSocket) s.accept();
+			printSocketInfo(c);
 		} catch (SSLException se) {
 			System.out.println("SSL problem, exit~");
 			try {
