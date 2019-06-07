@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.UnknownHostException;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
@@ -87,7 +88,7 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
       final KeyManagerFactory kmf;
       final SSLContext sc;
 
-      final String runRoot = "C://Users//eunch//Desktop//GIT//NP_BlackJack//src//"; // root change : your system root
+      final String runRoot = "/Users/fong/NP_BlackJack/src/"; // root change : your system root
 
       SSLServerSocketFactory ssf = null;
       SSLServerSocket s = null;
@@ -185,9 +186,37 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
 		  // select sender
 		  String sender_name = message.substring(0, first);	
 		  // select receiver
-		  String receiver_name = message.substring(second+1, third);
+		  String receiver_name = message.substring(second+2, third);
 		  // parsing message
 		  String msg = message.substring(third+1);
+		  
+		  Client sender = null, receiver = null;
+		  
+		  Vector clients = (Vector) this.clients.clone ();
+		  for (int i = 0; i < clients.size (); ++ i) {
+			  Client client = (Client) clients.elementAt(i);
+			  if(client.getName().equals(sender_name)){	//귓속말을 보내는 client 구분
+				  sender = client;
+				  break;
+			  }
+		  }
+		  
+		  for (int i = 0; i < clients.size (); ++ i) {
+			  Client client = (Client) clients.elementAt(i);
+			  if(client.getName().equals(receiver_name)){ //귓속말을 받는 client 구분
+				  receiver = client;
+				  break;
+			  }
+		  }
+		  
+		  if(sender != null && receiver != null){
+			  sender.said("[귓속말] "+sender_name+" >> "+receiver_name+" )) "+msg);
+			  receiver.said("[귓속말] "+sender_name+" >> "+receiver_name+" )) "+msg);
+		  }
+		  else
+			  sender.said("정확히 입력해주세요");
+		  
+		  
 	}
 
 	public void say(String message) throws RemoteException{

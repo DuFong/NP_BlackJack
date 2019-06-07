@@ -60,15 +60,13 @@ public class ClientImpl extends UnicastRemoteObject implements Client, ActionLis
    protected JPanel s2_sidePane;
    protected JLabel s2_lab;
    protected JList<Vector> s2_list; // 유저 목록
+   protected JButton s2_send; // 메세지 보내기 버튼
    protected JButton s2_go; // 게임 참가 버튼
    protected JButton s2_odd; // 홀 버튼
    protected JButton s2_even; // 짝 버튼
    protected JButton s2_exit; // 나가기 버튼
-   protected JButton p1; /******Players******/
-   protected JButton p2; 
-   protected JButton p3;
-   protected JButton p4;
-   protected JButton p5;/********************/
+   protected JScrollPane scr1; //스크롤
+   protected JScrollPane scr2; //스크롤
    ArrayList<String> clients; // client 저장 List
    boolean s2_check = false; // client가 입장했는지 체크
 
@@ -77,8 +75,8 @@ public class ClientImpl extends UnicastRemoteObject implements Client, ActionLis
    protected static int max = 9900;
    protected Vector<String> c;
    
-   BufferedWriter w = null;
-   BufferedReader r = null;
+   protected BufferedWriter w = null;
+   protected BufferedReader r = null;
 
    SSLSocketFactory sslSocketFactory;
 
@@ -133,10 +131,13 @@ public class ClientImpl extends UnicastRemoteObject implements Client, ActionLis
       s2_output.setBorder(BorderFactory.createCompoundBorder(lineBorder, emptyBorder));
       s2_list = new JList();
       s2_list.setBorder(BorderFactory.createCompoundBorder(lineBorder, emptyBorder));
+      scr1 = new JScrollPane(s2_list);
+      scr2 = new JScrollPane(s2_output);
 
       // 버튼 설정
       s2_odd = new JButton("홀");
       s2_even = new JButton("짝");
+      s2_send = new JButton("보내기");
       s2_go = new JButton("게임 참가");
       s2_exit = new JButton("게임 나가기");
 
@@ -149,11 +150,11 @@ public class ClientImpl extends UnicastRemoteObject implements Client, ActionLis
       gbc.weighty = 1;
       gbc.gridx = 0;
       gbc.gridy = 0;
-      s2_sidePane.add(s2_list, gbc);
+      s2_sidePane.add(scr1, gbc);
       gbc.weighty = 2;
       gbc.gridx = 0;
       gbc.gridy = 1;
-      s2_sidePane.add(s2_output, gbc);
+      s2_sidePane.add(scr2, gbc);
 
       gbc.fill = GridBagConstraints.BOTH;
       s2_messagePane.setLayout(new GridBagLayout());
@@ -161,6 +162,10 @@ public class ClientImpl extends UnicastRemoteObject implements Client, ActionLis
       gbc.gridx = 0;
       gbc.gridy = 0;
       s2_messagePane.add(s2_message, gbc);
+      gbc.weightx = 0.1;
+      gbc.gridx = 1;
+      gbc.gridy = 0;
+      s2_messagePane.add(s2_send, gbc);
       gbc.weightx = 0.1;
       gbc.gridx = 2;
       gbc.gridy = 0;
@@ -207,6 +212,7 @@ public class ClientImpl extends UnicastRemoteObject implements Client, ActionLis
                   
                   //register 호출
                   // SSL connection done.
+                  w = new BufferedWriter(new OutputStreamWriter(sslsocketclient.getOutputStream()));
                   s1_license_button.setVisible(false);
                   s1_panel.add(s1_name_button);
                   s1_label.setText("닉네임을 입력하세요 : ");
@@ -239,17 +245,54 @@ public class ClientImpl extends UnicastRemoteObject implements Client, ActionLis
                   name = null;
                   check = false;
                } else {
+            	   try {
+                       setName();
+                    }
+                    catch(RemoteException er){
+                        er.printStackTrace();
+                    }
                   frame1.setVisible(false);
                   frame2.setVisible(true);
                   s2_message.requestFocus();
 
                   s2_output.append("입장하였습니다.\n");
-                  s2_output.append("*****귓속말 사용법*****\n상대방 ID를 클릭 후 메세지를 입력하거나,\n'/w 상대방ID 메세지'를 입력하세요.\n");
+                  s2_output.append("*****귓속말 사용법*****\n'[/w] 상대방ID 메세지'를 입력하세요.\n");
 
                }
             }
          }
       });
+      
+      s2_send.addActionListener(new ActionListener() {
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			try {
+				if (server != null) {
+					String message = s2_message.getText();
+					if(message.contains("[/w")) {	//전송하려는 메세지가 귓속말이면
+						try {
+							message = name + message;
+							// SSL을 통해서 귓속말 message 전송
+							w.write(message,0,message.length());
+							w.newLine();
+							w.flush();
+						} catch (IOException io) {
+							// TODO Auto-generated catch block
+							io.printStackTrace();
+						}
+					}//SSL Socket을 통해 값 전달.
+					else
+						server.say (name + " >> " + message);
+					s2_message.setText("");
+				}
+			} catch (RemoteException ex) {
+				ex.printStackTrace ();
+			}
+			
+		}
+	});
    }
 
    public void printSocketInfo(SSLSocket s) {
@@ -289,21 +332,22 @@ public class ClientImpl extends UnicastRemoteObject implements Client, ActionLis
    public void actionPerformed(ActionEvent e) {
       // TODO Auto-generated method stub
 	   try {
-			Server server = this.server;
 			if (server != null) {
-				if(e.getActionCommand().contains("[w/")) {	//전송하려는 메세지가 귓속말이면
+				String message = s2_message.getText();
+				if(message.contains("[/w")) {	//전송하려는 메세지가 귓속말이면
 					try {
-						w = new BufferedWriter(new OutputStreamWriter(sslsocketclient.getOutputStream()));
-						w.write(name + e.getActionCommand());
+						message = name + message;
+						System.out.println(message);
+						w.write(message,0,message.length());
+						w.newLine();
 						w.flush();
-						w.close();
 					} catch (IOException io) {
 						// TODO Auto-generated catch block
 						io.printStackTrace();
 					}
 				}//SSL Socket을 통해 값 전달.
 				else
-					server.say (name + " >> " + e.getActionCommand ());
+					server.say (name + " >> " + message);
 				s2_message.setText("");
 			}
 		} catch (RemoteException ex) {
@@ -323,6 +367,8 @@ public class ClientImpl extends UnicastRemoteObject implements Client, ActionLis
    
    public void said(String m) throws RemoteException {
       s2_output.append(m + "\n");
+      scr1.getVerticalScrollBar().setValue(scr2.getVerticalScrollBar().getMaximum());
+      scr2.getVerticalScrollBar().setValue(scr2.getVerticalScrollBar().getMaximum());
       s2_message.setText("");
    }
    
