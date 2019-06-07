@@ -22,7 +22,7 @@ import javax.net.ssl.SSLSocketFactory;
 
 public class ServerImpl extends UnicastRemoteObject implements Server {
 
-   // SSL ì—°ê²°ì„ ìœ„í•¨
+   // SSL ¿¬°áÀ» À§ÇÔ
    private String[] license = { "20150263", "20150234", "1101978006" };
    private String password = "asd123";
    protected int portNumSSL = 8888;
@@ -88,7 +88,7 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
       final KeyManagerFactory kmf;
       final SSLContext sc;
 
-      final String runRoot = "/Users/fong/NP_BlackJack/src/"; // root change : your system root
+      final String runRoot = "C://Users//eunch//Desktop//GIT//NP_BlackJack//src//"; // root change : your system root
 
       SSLServerSocketFactory ssf = null;
       SSLServerSocket s = null;
@@ -195,7 +195,7 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
 		  Vector clients = (Vector) this.clients.clone ();
 		  for (int i = 0; i < clients.size (); ++ i) {
 			  Client client = (Client) clients.elementAt(i);
-			  if(client.getName().equals(sender_name)){	//ê·“ì†ë§ì„ ë³´ë‚´ëŠ” client êµ¬ë¶„
+			  if(client.getName().equals(sender_name)){	//±Ó¼Ó¸»À» º¸³»´Â client ±¸ºĞ
 				  sender = client;
 				  break;
 			  }
@@ -203,18 +203,18 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
 		  
 		  for (int i = 0; i < clients.size (); ++ i) {
 			  Client client = (Client) clients.elementAt(i);
-			  if(client.getName().equals(receiver_name)){ //ê·“ì†ë§ì„ ë°›ëŠ” client êµ¬ë¶„
+			  if(client.getName().equals(receiver_name)){ //±Ó¼Ó¸»À» ¹Ş´Â client ±¸ºĞ
 				  receiver = client;
 				  break;
 			  }
 		  }
 		  
 		  if(sender != null && receiver != null){
-			  sender.said("[ê·“ì†ë§] "+sender_name+" >> "+receiver_name+" )) "+msg);
-			  receiver.said("[ê·“ì†ë§] "+sender_name+" >> "+receiver_name+" )) "+msg);
+			  sender.said("[±Ó¼Ó¸»] "+sender_name+" >> "+receiver_name+" )) "+msg);
+			  receiver.said("[±Ó¼Ó¸»] "+sender_name+" >> "+receiver_name+" )) "+msg);
 		  }
 		  else
-			  sender.said("ì •í™•íˆ ì…ë ¥í•´ì£¼ì„¸ìš”");
+			  sender.said("Á¤È®È÷ ÀÔ·ÂÇØÁÖ¼¼¿ä");
 		  
 		  
 	}

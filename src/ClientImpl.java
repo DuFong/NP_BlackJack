@@ -5,8 +5,11 @@ import java.util.*;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.TextArea;
 import java.awt.TextField;
 import java.awt.event.ActionEvent;
@@ -28,364 +31,379 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
 public class ClientImpl extends UnicastRemoteObject implements Client, ActionListener {
-   /**
-   * 
-   */
-   private static final long serialVersionUID = 1L;
-   // MainFrame
-   protected JFrame frame1;
-   protected JFrame frame2;
-   protected Server server;
-   protected String host;
+	/**
+	* 
+	*/
+	private static final long serialVersionUID = 1L;
+	// MainFrame
+	protected JFrame frame1;
+	protected JFrame frame2;
+	protected Server server;
+	protected String host;
 
-   // SSL handshakingì„ ìœ„í•œ password
-   private String mypassword;
-   private SSLSocket sslsocketclient;
+	// SSL handshakingÀ» À§ÇÑ password
+	private String mypassword;
+	private SSLSocket sslsocketclient;
 
-   // s1 = ë¡œê·¸ì¸í˜ì´ì§€ s2 = ëŒ€ê¸°ë°©í˜ì´ì§€ s3 = ê²Œì„í™”ë©´í˜ì´ì§€
-   protected JPanel s1_panel;
-   protected JLabel s1_label;
-   protected JButton s1_license_button;
-   protected JButton s1_name_button;
-   protected JTextField s1_license_input;
-   protected TextArea s1_output;
-   boolean check = false; // í´ë¼ì´ì–¸íŠ¸ ì…ì¥ í™•ì¸ ë³€ìˆ˜
-   protected String name; // ë‹‰ë„¤ì„ ì €ì¥ ë³€ìˆ˜
+	// s1 = ·Î±×ÀÎÆäÀÌÁö s2 = Ã¤ÆÃ ¹× °ÔÀÓ
+	protected JPanel s1_panel;
+	protected JLabel s1_label;
+	protected JButton s1_license_button;
+	protected JButton s1_name_button;
+	protected JTextField s1_license_input;
+	protected TextArea s1_output;
+	boolean check = false; // Å¬¶óÀÌ¾ğÆ® ÀÔÀå È®ÀÎ º¯¼ö
+	protected String name; // ´Ğ³×ÀÓ ÀúÀå º¯¼ö
 
-   // for GUI
-   protected JTextField s2_message; // ë©”ì„¸ì§€ ì…ë ¥ì°½
-   protected static JTextArea s2_output; // ë©”ì„¸ì§€ ì¶œë ¥ì°½
-   protected JPanel s2_mainPane;
-   protected JPanel s2_messagePane;
-   protected JPanel s2_sidePane;
-   protected JLabel s2_lab;
-   protected JList<Vector> s2_list; // ìœ ì € ëª©ë¡
-   protected JButton s2_send; // ë©”ì„¸ì§€ ë³´ë‚´ê¸° ë²„íŠ¼
-   protected JButton s2_go; // ê²Œì„ ì°¸ê°€ ë²„íŠ¼
-   protected JButton s2_odd; // í™€ ë²„íŠ¼
-   protected JButton s2_even; // ì§ ë²„íŠ¼
-   protected JButton s2_exit; // ë‚˜ê°€ê¸° ë²„íŠ¼
-   protected JScrollPane scr1; //ìŠ¤í¬ë¡¤
-   protected JScrollPane scr2; //ìŠ¤í¬ë¡¤
-   ArrayList<String> clients; // client ì €ì¥ List
-   boolean s2_check = false; // clientê°€ ì…ì¥í–ˆëŠ”ì§€ ì²´í¬
+	// for GUI
+	protected JTextField s2_message; // ¸Ş¼¼Áö ÀÔ·ÂÃ¢
+	protected static JTextArea s2_output; // ¸Ş¼¼Áö Ãâ·ÂÃ¢
+	protected JPanel s2_mainPane;
+	protected JPanel s2_messagePane;
+	protected JPanel s2_sidePane;
+	protected JLabel s2_lab;
+	protected JList<Vector> s2_list; // À¯Àú ¸ñ·Ï
+	protected JButton s2_send; // ¸Ş¼¼Áö º¸³»±â ¹öÆ°
+	protected JButton s2_go; // °ÔÀÓ Âü°¡ ¹öÆ°
+	protected JScrollPane scr1; // ½ºÅ©·Ñ
+	protected JScrollPane scr2; // ½ºÅ©·Ñ
+	ArrayList<String> clients; // client ÀúÀå List
+	boolean s2_check = false; // client°¡ ÀÔÀåÇß´ÂÁö Ã¼Å©
 
-   protected int myPort;
-   protected static int min = 9000;
-   protected static int max = 9900;
-   protected Vector<String> c;
-   
-   protected BufferedWriter w = null;
-   protected BufferedReader r = null;
+	// for Game
+	protected JPanel s2_gamePane;
+	protected JPanel s2_selPane; // È¦,Â¦ ¼±ÅÃÃ¢
+	protected JButton s2_odd; // È¦ ¹öÆ°
+	protected JButton s2_even; // Â¦ ¹öÆ°
+	protected JButton s2_exit; // ³ª°¡±â ¹öÆ°
+	protected JTextArea s2_result; // È¦,Â¦ °á°ú Ãâ·ÂÃ¢
+	protected Font font;
+	protected int s2_part = 0; //°ÔÀÓ Âü¿© È®ÀÎ º¯¼ö
+	protected int s2_myAns = 0; //È¦,Â¦ ¼±ÅÃ °á°ú º¯¼ö, ¼±ÅÃ ¾ÈÇÒ ½Ã ÀÚµ¿À¸·Î È¦ ¼±ÅÃ, false = È¦, odd = Â¦
+	protected int s2_gameResult;
+	
+	
+	protected BufferedWriter w = null;
+	protected BufferedReader r = null;
 
-   SSLSocketFactory sslSocketFactory;
+	SSLSocketFactory sslSocketFactory;
 
-   public ClientImpl(String host) throws RemoteException {
-      this.host = host;
-      myPort = min++;
+	public ClientImpl(String host) throws RemoteException {
+		this.host = host;
 
-      // swingì„ í†µí•œ GUI. License ê²€
-      frame1 = new JFrame("BlackJack_byNL");
-      frame2 = new JFrame("BlackJack_byNL");
+		// swingÀ» ÅëÇÑ GUI. License °Ë
+		frame1 = new JFrame("BlackJack_byNL");
+		frame2 = new JFrame("BlackJack_byNL");
 
-      frame1.setLayout(new BorderLayout());
-      frame1.setPreferredSize(new Dimension(800, 800));
-      frame1.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-      frame1.pack();
-      frame2.setLayout(new BorderLayout());
-      frame2.setPreferredSize(new Dimension(800, 800));
-      frame2.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-      frame2.pack();
+		frame1.setLayout(new BorderLayout());
+		frame1.setPreferredSize(new Dimension(800, 800));
+		frame1.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame1.pack();
+		frame2.setLayout(new BorderLayout());
+		frame2.setPreferredSize(new Dimension(800, 800));
+		frame2.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame2.pack();
 
-      // s1 í˜ì´ì§€ ì˜ì—­
-      s1_panel = new JPanel();
-      s1_label = new JLabel("ë¼ì´ì„¼ìŠ¤í‚¤ë¥¼ ì…ë ¥í•˜ì„¸ìš”.");
-      s1_license_button = new JButton("ë¼ì´ì„¼ìŠ¤ í™•ì¸");
-      s1_name_button = new JButton("ì…ë ¥");
-      s1_license_input = new JTextField(12);
-      s1_output = new TextArea();
+		// s1 ÆäÀÌÁö ¿µ¿ª
+		s1_panel = new JPanel();
+		s1_label = new JLabel("¶óÀÌ¼¾½ºÅ°¸¦ ÀÔ·ÂÇÏ¼¼¿ä.");
+		s1_license_button = new JButton("¶óÀÌ¼¾½º È®ÀÎ");
+		s1_name_button = new JButton("ÀÔ·Â");
+		s1_license_input = new JTextField(12);
+		s1_output = new TextArea();
 
-      s1_panel.add(s1_label);
-      s1_panel.add(s1_license_input);
-      s1_panel.add(s1_license_button);
+		s1_panel.add(s1_label);
+		s1_panel.add(s1_license_input);
+		s1_panel.add(s1_license_button);
 
-      frame1.add(s1_panel, "North");
-      frame1.add(s1_output, "Center");
+		frame1.add(s1_panel, "North");
+		frame1.add(s1_output, "Center");
 
-      // íŒ¨ë„ ì„¤ì •
-      s2_mainPane = new JPanel();
-      s2_sidePane = new JPanel();
-      s2_messagePane = new JPanel();
+		// ÆĞ³Î ¼³Á¤
+		s2_mainPane = new JPanel();
+		s2_mainPane.setLayout(new GridLayout(2,1));
+		s2_sidePane = new JPanel();
+		s2_messagePane = new JPanel();
 
-      // í…Œë‘ë¦¬ ì„¤ì •
-      Border lineBorder = BorderFactory.createLineBorder(Color.black, 1);
-      Border emptyBorder = BorderFactory.createEmptyBorder();
+		// Å×µÎ¸® ¼³Á¤
+		Border lineBorder = BorderFactory.createLineBorder(Color.black, 1);
+		Border emptyBorder = BorderFactory.createEmptyBorder();
 
-      // text field ë° area ì„¤ì •
-      s2_message = new JTextField(100);
-      s2_message.setBorder(BorderFactory.createCompoundBorder(lineBorder, emptyBorder));
-      s2_output = new JTextArea();
-      s2_output.setEditable(false);
-      s2_output.setLineWrap(true);
-      s2_output.setSize(218, 800);
-      s2_output.setBorder(BorderFactory.createCompoundBorder(lineBorder, emptyBorder));
-      s2_list = new JList();
-      s2_list.setBorder(BorderFactory.createCompoundBorder(lineBorder, emptyBorder));
-      scr1 = new JScrollPane(s2_list);
-      scr2 = new JScrollPane(s2_output);
+		// text field ¹× area ¼³Á¤
+		s2_message = new JTextField(100);
+		s2_message.setBorder(BorderFactory.createCompoundBorder(lineBorder, emptyBorder));
+		s2_output = new JTextArea();
+		s2_output.setEditable(false);
+		s2_output.setLineWrap(true);
+		s2_output.setSize(218, 800);
+		s2_output.setBorder(BorderFactory.createCompoundBorder(lineBorder, emptyBorder));
+		s2_list = new JList();
+		s2_list.setBorder(BorderFactory.createCompoundBorder(lineBorder, emptyBorder));
+		scr1 = new JScrollPane(s2_list);
+		scr2 = new JScrollPane(s2_output);
 
-      // ë²„íŠ¼ ì„¤ì •
-      s2_odd = new JButton("í™€");
-      s2_even = new JButton("ì§");
-      s2_send = new JButton("ë³´ë‚´ê¸°");
-      s2_go = new JButton("ê²Œì„ ì°¸ê°€");
-      s2_exit = new JButton("ê²Œì„ ë‚˜ê°€ê¸°");
-
-      // side pane, message pane ì„¤ì •
-      s2_sidePane.setLayout(new GridBagLayout());
-      GridBagConstraints gbc = new GridBagConstraints();
-      gbc.fill = GridBagConstraints.BOTH;
-      gbc.gridwidth = 1;
-      gbc.gridheight = 1;
-      gbc.weighty = 1;
-      gbc.gridx = 0;
-      gbc.gridy = 0;
-      s2_sidePane.add(scr1, gbc);
-      gbc.weighty = 2;
-      gbc.gridx = 0;
-      gbc.gridy = 1;
-      s2_sidePane.add(scr2, gbc);
-
-      gbc.fill = GridBagConstraints.BOTH;
-      s2_messagePane.setLayout(new GridBagLayout());
-      gbc.weightx = 2;
-      gbc.gridx = 0;
-      gbc.gridy = 0;
-      s2_messagePane.add(s2_message, gbc);
-      gbc.weightx = 0.1;
-      gbc.gridx = 1;
-      gbc.gridy = 0;
-      s2_messagePane.add(s2_send, gbc);
-      gbc.weightx = 0.1;
-      gbc.gridx = 2;
-      gbc.gridy = 0;
-      s2_messagePane.add(s2_go, gbc);
-
-      frame2.add(s2_mainPane, "Center");
-      frame2.add(s2_sidePane, "East");
-      frame2.add(s2_messagePane, "South");
-      
-      s2_message.addActionListener(this);
-      
-
-      s1_license_button.addActionListener(new ActionListener() {
-         @Override
-         public void actionPerformed(ActionEvent e) {
-            // TODO Auto-generated method stub
-            if (s1_license_input.equals(""))
-               s1_output.setText("ë¼ì´ì„¼ìŠ¤í‚¤ë¥¼ ì…ë ¥í•˜ì„¸ìš”");
-            else
-               s1_output.setText("ë¼ì´ì„¼ìŠ¤ë¥¼ ê²€ì¦í•©ë‹ˆë‹¤");
-
-            try {
-               mypassword = server.checkLicense(s1_license_input.getText());
-               s1_license_input.setText("");
-               if (mypassword == null) {
-                  s1_output.setText("ì˜ëª»ëœ ë¼ì´ì„¼ìŠ¤í‚¤ì…ë‹ˆë‹¤. ë‹¤ì‹œ í™•ì¸í•˜ì„¸ìš”.");
-               } else {
-                  System.setProperty("javax.net.ssl.trustStore", "trustedcerts");
-                  System.setProperty("javax.net.ssl.trustStorePassword", mypassword);
-
-                  sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
-                  try {
-                     sslsocketclient = (SSLSocket) sslSocketFactory.createSocket(host, 8888);
-                  } catch (UnknownHostException e1) {
-                     e1.printStackTrace();
-                  } catch (IOException e1) {
-                     e1.printStackTrace();
-                  }
-
-                  String[] supported = sslsocketclient.getSupportedCipherSuites();
-                  sslsocketclient.setEnabledCipherSuites(supported);
-                  printSocketInfo(sslsocketclient);
-                  sslsocketclient.startHandshake();
-                  
-                  //register í˜¸ì¶œ
-                  // SSL connection done.
-                  w = new BufferedWriter(new OutputStreamWriter(sslsocketclient.getOutputStream()));
-                  s1_license_button.setVisible(false);
-                  s1_panel.add(s1_name_button);
-                  s1_label.setText("ë‹‰ë„¤ì„ì„ ì…ë ¥í•˜ì„¸ìš” : ");
-                  s1_output.setText("**********Cd Key ì¸ì¦ë˜ì—ˆìŠµë‹ˆë‹¤!**********");
-
-               }
-            } catch (MalformedURLException mue) {
-               System.out.println("MalformedURLException: " + mue);
-            } catch (RemoteException re) {
-               System.out.println("RemoteException: " + re);
-            } catch (java.lang.ArithmeticException ae) {
-               System.out.println("java.lang.ArithmeticException " + ae);
-            } catch (IOException io) {
-               System.out.println(io);
-
-            }
-
-         }
-      });
-      
-
-      s1_name_button.addActionListener(new ActionListener() {
-         @Override
-         public void actionPerformed(ActionEvent e) {
-            if (check == false) {
-               check = true;
-               name = s1_license_input.getText();
-               if (name.equals("") || name.length() > 12) {
-                  s1_output.setText("ë‹‰ë„¤ì„ì„ ë‹¤ì‹œ ì…ë ¥í•´ì£¼ì„¸ìš”. ìµœëŒ€ 12ê¸€ì ì…ë‹ˆë‹¤.");
-                  name = null;
-                  check = false;
-               } else {
-            	   try {
-                       setName();
-                    }
-                    catch(RemoteException er){
-                        er.printStackTrace();
-                    }
-                  frame1.setVisible(false);
-                  frame2.setVisible(true);
-                  s2_message.requestFocus();
-
-                  s2_output.append("ì…ì¥í•˜ì˜€ìŠµë‹ˆë‹¤.\n");
-                  s2_output.append("*****ê·“ì†ë§ ì‚¬ìš©ë²•*****\n'[/w] ìƒëŒ€ë°©ID ë©”ì„¸ì§€'ë¥¼ ì…ë ¥í•˜ì„¸ìš”.\n");
-
-               }
-            }
-         }
-      });
-      
-      s2_send.addActionListener(new ActionListener() {
+		// ¹öÆ° ¼³Á¤
+		s2_odd = new JButton("È¦");
+		s2_even = new JButton("Â¦");
+		s2_send = new JButton("º¸³»±â");
+		s2_go = new JButton("°ÔÀÓ Âü°¡");
+		s2_exit = new JButton("°ÔÀÓ ³ª°¡±â");
 		
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			// TODO Auto-generated method stub
-			try {
-				if (server != null) {
-					String message = s2_message.getText();
-					if(message.contains("[/w")) {	//ì „ì†¡í•˜ë ¤ëŠ” ë©”ì„¸ì§€ê°€ ê·“ì†ë§ì´ë©´
+		// °ÔÀÓ GUI ¼³Á¤
+		s2_gamePane = new JPanel(new BorderLayout());
+		s2_selPane = new JPanel();
+		s2_selPane.setLayout(new FlowLayout());
+		s2_odd = new JButton("È¦");
+		s2_even = new JButton("Â¦");
+		s2_result = new JTextArea();
+		s2_result.setEditable(false);
+		s2_result.setText("Test");
+		font = new Font("arian",Font.BOLD, 30);
+		s2_result.setFont(font);		
+		s2_gamePane.add(s2_result,"Center");
+		s2_selPane.add(s2_odd);
+		s2_selPane.add(s2_even);
+		s2_mainPane.add(s2_gamePane);
+		s2_mainPane.add(s2_selPane);
+
+		// side pane, message pane ¼³Á¤
+		s2_sidePane.setLayout(new GridBagLayout());
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.fill = GridBagConstraints.BOTH;
+		gbc.gridwidth = 1;
+		gbc.gridheight = 1;
+		gbc.weighty = 1;
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		s2_sidePane.add(scr1, gbc);
+		gbc.weighty = 2;
+		gbc.gridx = 0;
+		gbc.gridy = 1;
+		s2_sidePane.add(scr2, gbc);
+
+		gbc.fill = GridBagConstraints.BOTH;
+		s2_messagePane.setLayout(new GridBagLayout());
+		gbc.weightx = 2;
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		s2_messagePane.add(s2_message, gbc);
+		gbc.weightx = 0.1;
+		gbc.gridx = 1;
+		gbc.gridy = 0;
+		s2_messagePane.add(s2_send, gbc);
+		gbc.weightx = 0.1;
+		gbc.gridx = 2;
+		gbc.gridy = 0;
+		s2_messagePane.add(s2_go, gbc);
+
+		frame2.add(s2_mainPane, "Center");
+		frame2.add(s2_sidePane, "East");
+		frame2.add(s2_messagePane, "South");
+
+		s2_message.addActionListener(this);
+
+		s1_license_button.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				if (s1_license_input.equals(""))
+					s1_output.setText("¶óÀÌ¼¾½ºÅ°¸¦ ÀÔ·ÂÇÏ¼¼¿ä");
+				else
+					s1_output.setText("¶óÀÌ¼¾½º¸¦ °ËÁõÇÕ´Ï´Ù");
+
+				try {
+					mypassword = server.checkLicense(s1_license_input.getText());
+					s1_license_input.setText("");
+					if (mypassword == null) {
+						s1_output.setText("Àß¸øµÈ ¶óÀÌ¼¾½ºÅ°ÀÔ´Ï´Ù. ´Ù½Ã È®ÀÎÇÏ¼¼¿ä.");
+					} else {
+						System.setProperty("javax.net.ssl.trustStore", "trustedcerts");
+						System.setProperty("javax.net.ssl.trustStorePassword", mypassword);
+
+						sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
 						try {
-							message = name + message;
-							// SSLì„ í†µí•´ì„œ ê·“ì†ë§ message ì „ì†¡
-							w.write(message,0,message.length());
-							w.newLine();
-							w.flush();
-						} catch (IOException io) {
-							// TODO Auto-generated catch block
-							io.printStackTrace();
+							sslsocketclient = (SSLSocket) sslSocketFactory.createSocket(host, 8888);
+						} catch (UnknownHostException e1) {
+							e1.printStackTrace();
+						} catch (IOException e1) {
+							e1.printStackTrace();
 						}
-					}//SSL Socketì„ í†µí•´ ê°’ ì „ë‹¬.
-					else
-						server.say (name + " >> " + message);
-					s2_message.setText("");
+
+						String[] supported = sslsocketclient.getSupportedCipherSuites();
+						sslsocketclient.setEnabledCipherSuites(supported);
+						printSocketInfo(sslsocketclient);
+						sslsocketclient.startHandshake();
+
+						// register È£Ãâ
+						// SSL connection done.
+						w = new BufferedWriter(new OutputStreamWriter(sslsocketclient.getOutputStream()));
+						s1_license_button.setVisible(false);
+						s1_panel.add(s1_name_button);
+						s1_label.setText("´Ğ³×ÀÓÀ» ÀÔ·ÂÇÏ¼¼¿ä : ");
+						s1_output.setText("**********Cd Key ÀÎÁõµÇ¾ú½À´Ï´Ù!**********");
+
+					}
+				} catch (MalformedURLException mue) {
+					System.out.println("MalformedURLException: " + mue);
+				} catch (RemoteException re) {
+					System.out.println("RemoteException: " + re);
+				} catch (java.lang.ArithmeticException ae) {
+					System.out.println("java.lang.ArithmeticException " + ae);
+				} catch (IOException io) {
+					System.out.println(io);
+
 				}
-			} catch (RemoteException ex) {
-				ex.printStackTrace ();
+
 			}
-			
+		});
+
+		s1_name_button.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (check == false) {
+					check = true;
+					name = s1_license_input.getText();
+					if (name.equals("") || name.length() > 12) {
+						s1_output.setText("´Ğ³×ÀÓÀ» ´Ù½Ã ÀÔ·ÂÇØÁÖ¼¼¿ä. ÃÖ´ë 12±ÛÀÚ ÀÔ´Ï´Ù.");
+						name = null;
+						check = false;
+					} else {
+						try {
+							setName();
+						} catch (RemoteException er) {
+							er.printStackTrace();
+						}
+						frame1.setVisible(false);
+						frame2.setVisible(true);
+						s2_message.requestFocus();
+
+						s2_output.append(name + "´ÔÀÌ ÀÔÀåÇÏ¿´½À´Ï´Ù.\n");
+						s2_output.append("*****±Ó¼Ó¸» »ç¿ë¹ı*****\n'[/w] »ó´ë¹æID ¸Ş¼¼Áö'¸¦ ÀÔ·ÂÇÏ¼¼¿ä.\n");
+					}
+				}
+			}
+		});
+
+		s2_send.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				try {
+					if (server != null) {
+						String message = s2_message.getText();
+						if (message.contains("[/w")) { // Àü¼ÛÇÏ·Á´Â ¸Ş¼¼Áö°¡ ±Ó¼Ó¸»ÀÌ¸é
+							try {
+								message = name + message;
+								// SSLÀ» ÅëÇØ¼­ ±Ó¼Ó¸» message Àü¼Û
+								w.write(message, 0, message.length());
+								w.newLine();
+								w.flush();
+							} catch (IOException io) {
+								// TODO Auto-generated catch block
+								io.printStackTrace();
+							}
+						} // SSL SocketÀ» ÅëÇØ °ª Àü´Ş.
+						else
+							server.say(name + " >> " + message);
+						s2_message.setText("");
+					}
+				} catch (RemoteException ex) {
+					ex.printStackTrace();
+				}
+
+			}
+		});
+	}
+
+	public void printSocketInfo(SSLSocket s) {
+		System.out.println("Socket class: " + s.getClass());
+		System.out.println("   Remote address = " + s.getInetAddress().toString());
+		System.out.println("   Remote port = " + s.getPort());
+		System.out.println("   Local socket address = " + s.getLocalSocketAddress().toString());
+		System.out.println("   Local address = " + s.getLocalAddress().toString());
+		System.out.println("   Local port = " + s.getLocalPort());
+		System.out.println("   Need client authentication = " + s.getNeedClientAuth());
+		SSLSession ss = s.getSession();
+		System.out.println("   Cipher suite = " + ss.getCipherSuite());
+		System.out.println("   Protocol = " + ss.getProtocol());
+	}
+
+	public synchronized void start() throws RemoteException, NotBoundException {
+		if (server == null) {
+			try {
+				server = (Server) Naming.lookup("rmi://" + host + ":9999/mainserver");
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			frame1.setVisible(true);
+
 		}
-	});
-   }
+	}
 
-   public void printSocketInfo(SSLSocket s) {
-      System.out.println("Socket class: " + s.getClass());
-      System.out.println("   Remote address = " + s.getInetAddress().toString());
-      System.out.println("   Remote port = " + s.getPort());
-      System.out.println("   Local socket address = " + s.getLocalSocketAddress().toString());
-      System.out.println("   Local address = " + s.getLocalAddress().toString());
-      System.out.println("   Local port = " + s.getLocalPort());
-      System.out.println("   Need client authentication = " + s.getNeedClientAuth());
-      SSLSession ss = s.getSession();
-      System.out.println("   Cipher suite = " + ss.getCipherSuite());
-      System.out.println("   Protocol = " + ss.getProtocol());
-   }
+	public static void main(String[] args) throws RemoteException, NotBoundException {
+		// TODO Auto-generated method stub
 
-   public synchronized void start() throws RemoteException, NotBoundException {
-      if (server == null) {
-         try {
-            server = (Server) Naming.lookup("rmi://" + host + ":9999/mainserver");
-         } catch (MalformedURLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-         }
-         frame1.setVisible(true);
+		ClientImpl client = new ClientImpl(args[0]);
+		client.start();
+	}
 
-      }
-   }
-
-   public static void main(String[] args) throws RemoteException, NotBoundException {
-      // TODO Auto-generated method stub
-
-      ClientImpl client = new ClientImpl(args[0]);
-      client.start();
-   }
-
-   @Override
-   public void actionPerformed(ActionEvent e) {
-      // TODO Auto-generated method stub
-	   try {
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		// TODO Auto-generated method stub
+		try {
 			if (server != null) {
 				String message = s2_message.getText();
-				if(message.contains("[/w")) {	//ì „ì†¡í•˜ë ¤ëŠ” ë©”ì„¸ì§€ê°€ ê·“ì†ë§ì´ë©´
+				if (message.contains("[/w")) { // Àü¼ÛÇÏ·Á´Â ¸Ş¼¼Áö°¡ ±Ó¼Ó¸»ÀÌ¸é
 					try {
 						message = name + message;
 						System.out.println(message);
-						w.write(message,0,message.length());
+						w.write(message, 0, message.length());
 						w.newLine();
 						w.flush();
 					} catch (IOException io) {
 						// TODO Auto-generated catch block
 						io.printStackTrace();
 					}
-				}//SSL Socketì„ í†µí•´ ê°’ ì „ë‹¬.
+				} // SSL SocketÀ» ÅëÇØ °ª Àü´Ş.
 				else
-					server.say (name + " >> " + message);
+					server.say(name + " >> " + message);
 				s2_message.setText("");
 			}
 		} catch (RemoteException ex) {
-			ex.printStackTrace ();
+			ex.printStackTrace();
 		}
-	   
-   }
 
-   public String getName() throws RemoteException {
-	      return this.name;
-	   }
-	   
-	   public void setName() throws RemoteException{
-	      server.register(this);
-	   }
+	}
 
-   
-   public void said(String m) throws RemoteException {
-      s2_output.append(m + "\n");
-      scr1.getVerticalScrollBar().setValue(scr2.getVerticalScrollBar().getMaximum());
-      scr2.getVerticalScrollBar().setValue(scr2.getVerticalScrollBar().getMaximum());
-      s2_message.setText("");
-   }
-   
-   public void clientCheck() throws RemoteException{
-	      Vector vec = new Vector();
-	      try {
-	         clients = server.clientList();
-	         vec.clear();
-	         for(int i = 0; i < clients.size(); i++) {
-	            vec.addElement(clients.get(i));
-	         }
-	         s2_list.setListData(vec);
-	      }
-	      catch(RemoteException e) {
-	         e.printStackTrace();
-	      }
-	   }
+	public String getName() throws RemoteException {
+		return this.name;
+	}
 
-   
+	public void setName() throws RemoteException {
+		server.register(this);
+	}
+
+	public void said(String m) throws RemoteException {
+		s2_output.append(m + "\n");
+		scr1.getVerticalScrollBar().setValue(scr2.getVerticalScrollBar().getMaximum());
+		scr2.getVerticalScrollBar().setValue(scr2.getVerticalScrollBar().getMaximum());
+		s2_message.setText("");
+	}
+
+	public void clientCheck() throws RemoteException {
+		Vector vec = new Vector();
+		try {
+			clients = server.clientList();
+			vec.clear();
+			for (int i = 0; i < clients.size(); i++) {
+				vec.addElement(clients.get(i));
+			}
+			s2_list.setListData(vec);
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+	}
+
 }
