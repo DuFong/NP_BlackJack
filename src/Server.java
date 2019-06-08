@@ -14,4 +14,6 @@ public interface Server extends Remote {
 	public ArrayList clientList() throws RemoteException;
 	public void register(Client client) throws RemoteException;
 	public void exit(Client client) throws RemoteException;
+	public void checkGame(String name) throws RemoteException;
+	public void checkSelect(String name, int iscorrect) throws RemoteException;
 }

@@ -9,6 +9,7 @@ public interface Client extends Remote {
 	public void clientCheck() throws RemoteException;
 	public void said(String m) throws RemoteException;
 	public void onePlayer() throws RemoteException;
-	public void twoPlayer() throws RemoteException;
+	public void twoPlayer(int answer) throws RemoteException;
 	public void watchingGame() throws RemoteException;
+	public void endGame() throws RemoteException;
 }
