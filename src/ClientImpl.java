@@ -157,12 +157,16 @@ public class ClientImpl extends UnicastRemoteObject implements Client, ActionLis
 		s2_even = new JButton("짝");
 		s2_result = new JTextArea();
 		s2_result.setEditable(false);
-		s2_result.setText("Test");
+		s2_result.setText("\n\n\n                 게임을 시작하려면\n          '게임 참가' 버튼을 눌러주세요~~~");
 		font = new Font("arian",Font.BOLD, 30);
 		s2_result.setFont(font);		
 		s2_gamePane.add(s2_result,"Center");
 		s2_selPane.add(s2_odd);
 		s2_selPane.add(s2_even);
+		s2_odd.setPreferredSize(new Dimension(150,150));
+		s2_even.setPreferredSize(new Dimension(150,150));
+		s2_odd.setEnabled(false);
+		s2_even.setEnabled(false);
 		s2_mainPane.add(s2_gamePane);
 		s2_mainPane.add(s2_selPane);
 
@@ -195,6 +199,8 @@ public class ClientImpl extends UnicastRemoteObject implements Client, ActionLis
 		gbc.gridx = 2;
 		gbc.gridy = 0;
 		s2_messagePane.add(s2_go, gbc);
+		s2_messagePane.add(s2_exit,gbc);
+		s2_exit.setVisible(false);
 
 		frame2.add(s2_mainPane, "Center");
 		frame2.add(s2_sidePane, "East");
@@ -404,6 +410,32 @@ public class ClientImpl extends UnicastRemoteObject implements Client, ActionLis
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public void onePlayer() throws RemoteException{
+		s2_odd.setEnabled(true);
+		s2_even.setEnabled(true);
+		s2_result.setText("다른 플레이어를 기다리는 중입니다...");
+		s2_go.setVisible(false);
+		s2_exit.setVisible(true);
+	}
+	
+	public void twoPlayer() throws RemoteException{
+		s2_odd.setEnabled(true);
+		s2_even.setEnabled(true);
+		s2_result.setText("게임을 시작합니다!!");
+		try {
+			Thread.sleep(5000);
+		}
+		catch(InterruptedException e){
+			e.printStackTrace();
+		}
+		
+	}
+	
+	public void watchingGame() throws RemoteException{
+		s2_result.setText("현재 게임 중입니다.\n게임이 끝날 때까지 기다려 주세요~~");
+		s2_go.setEnabled(false);
 	}
 
 }
